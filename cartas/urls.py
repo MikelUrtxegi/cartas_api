@@ -18,9 +18,15 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
+
+    # Auth corporativa (o futura)
     path("api/auth/", include("api_auth.urls")),
+
+    # Endpoints generales API
+    path("api/", include("api.urls")),
+
+    # Health check
     path("", include("health.urls")),
-
-
 ]
+
