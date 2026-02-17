@@ -22,6 +22,7 @@ urlpatterns = [
     path("api/auth/", include("jwt_auth.urls")),
     path("", include("health.urls")),
     path("api/", include("api.urls")),
+    path("api/corp-auth/", include("auth_template.urls")),
 
 
 
