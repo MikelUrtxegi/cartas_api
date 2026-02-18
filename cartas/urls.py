@@ -20,13 +20,17 @@ from django.urls import path, include
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    # Auth corporativa (o futura)
-    path("api/auth/", include("api_auth.urls")),
+    # JWT (login/refresh)
+    path("api/auth/", include("jwt_auth.urls")),
 
-    # Endpoints generales API
+    # Health
+    path("", include("health.urls")),
+
+    # API general (ping y futuros)
     path("api/", include("api.urls")),
 
-    # Health check
-    path("", include("health.urls")),
+    # Auth corporativa
+    path("api/corp-auth/", include("auth_template.urls")),
 ]
+
 
