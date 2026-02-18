@@ -18,12 +18,19 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
+
+    # JWT (login/refresh)
     path("api/auth/", include("jwt_auth.urls")),
+
+    # Health
     path("", include("health.urls")),
+
+    # API general (ping y futuros)
     path("api/", include("api.urls")),
+
+    # Auth corporativa
     path("api/corp-auth/", include("auth_template.urls")),
-
-
-
 ]
+
+

@@ -34,6 +34,8 @@ DEFAULT_ADMIN_PASSWORD = os.getenv("DEFAULT_ADMIN_PASSWORD", "ChangeMe123!")
 
 # Application definition
 
+
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -49,7 +51,11 @@ INSTALLED_APPS = [
     "auth_template",
 ]
 
+
+
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -144,4 +150,5 @@ REST_FRAMEWORK = {
 
 AUTH_USER_MODEL = "auth_template.CustomUser"
 
+CORS_ALLOW_ALL_ORIGINS = True
 
