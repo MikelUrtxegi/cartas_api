@@ -31,6 +31,10 @@ urlpatterns = [
 
     # Auth corporativa
     path("api/corp-auth/", include("auth_template.urls")),
+
+    # Company Session
+    path("api/company/", include("company_session.urls")),
+
 ]
 
 

@@ -44,14 +44,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-<<<<<<< Updated upstream
-    "rest_framework",
-    "corsheaders",
-    "jwt_auth",
-    "health",
-    "api",
-    "auth_template",
-=======
 
     # Third party
     "rest_framework",
@@ -69,8 +61,8 @@ INSTALLED_APPS = [
     "companies",
     "cards",
     "decks",
-    "sessions",
->>>>>>> Stashed changes
+    "company_session",
+    "participant_auth",
 ]
 
 
