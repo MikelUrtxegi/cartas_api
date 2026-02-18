@@ -37,18 +37,40 @@ DEFAULT_ADMIN_PASSWORD = os.getenv("DEFAULT_ADMIN_PASSWORD", "ChangeMe123!")
 
 
 INSTALLED_APPS = [
+    # Django core
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+<<<<<<< Updated upstream
     "rest_framework",
     "corsheaders",
     "jwt_auth",
     "health",
     "api",
     "auth_template",
+=======
+
+    # Third party
+    "rest_framework",
+    "corsheaders",
+    "drf_yasg",
+
+    # Internal auth
+    "auth_template",
+    "jwt_auth",
+
+    # Infra
+    "health",
+
+    # Core domain
+    "companies",
+    "cards",
+    "decks",
+    "sessions",
+>>>>>>> Stashed changes
 ]
 
 
