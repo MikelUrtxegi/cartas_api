@@ -38,6 +38,21 @@ urlpatterns = [
     # Participant auth
     path("api/participant/", include("participant_auth.urls")),
 
+    # Dashboard
+    path("api/dashboard/", include("dashboard.urls")),
+
+    # Decks
+    path("api/dashboard/", include("decks.urls")),
+
+    #companies
+    path("api/dashboard/", include("companies.urls")),
+
+    #cards
+    path("api/dashboard/", include("cards.urls")),
+
+
+
+
 
 ]
 
