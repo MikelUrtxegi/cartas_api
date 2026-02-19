@@ -4,6 +4,10 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from .permissions import IsAdminUserToken, IsParticipantToken
+from .models import Session, Group, Canvas, Vote
+
+
 
 from .models import Session, Group, Canvas
 from .serializers import (
@@ -16,7 +20,7 @@ from .serializers import (
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAdminUserToken])
 def create_session(request):
     serializer = SessionCreateSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -25,7 +29,7 @@ def create_session(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsAdminUserToken])
 def create_group(request):
     serializer = GroupCreateSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -34,7 +38,7 @@ def create_group(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsParticipantToken])
 def join_group(request):
     serializer = JoinGroupSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
@@ -53,16 +57,28 @@ def join_group(request):
 
 
 @api_view(["POST"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsParticipantToken])
 def create_vote(request):
     serializer = VoteCreateSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    vote = serializer.save()
-    return Response(VoteCreateSerializer(vote).data, status=status.HTTP_201_CREATED)
+
+    session = serializer.validated_data["session"]
+    group = serializer.validated_data["group"]
+    card = serializer.validated_data["card"]
+    value = serializer.validated_data["value"]
+    comment = serializer.validated_data.get("comment", "")
+
+    vote, _created = Vote.objects.update_or_create(
+        session=session,
+        group=group,
+        card=card,
+        defaults={"value": value, "comment": comment},
+    )
+    return Response(VoteCreateSerializer(vote).data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET", "PUT"])
-@permission_classes([IsAuthenticated])
+@permission_classes([IsParticipantToken])
 def canvas_view(request, session_id: int):
     if request.method == "GET":
         canvas = Canvas.objects.filter(session_id=session_id).first()
