@@ -35,6 +35,10 @@ urlpatterns = [
     # Company Session
     path("api/company/", include("company_session.urls")),
 
+    # Participant auth
+    path("api/participant/", include("participant_auth.urls")),
+
+
 ]
 
 
