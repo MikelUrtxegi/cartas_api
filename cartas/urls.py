@@ -41,6 +41,9 @@ urlpatterns = [
     # Dashboard
     path("api/dashboard/", include("dashboard.urls")),
 
+    # Decks (dashboard)
+    path("api/dashboard/", include("decks.urls")),
+
     
 
 
