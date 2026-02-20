@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .permissions import IsAdminUserToken, IsParticipantToken
 from .models import Session, Group, Canvas, Vote
+from decks.models import DeckCard
 
 
 
@@ -25,8 +26,19 @@ def create_session(request):
     serializer = SessionCreateSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     session = serializer.save(created_by=request.user)
-    return Response(SessionCreateSerializer(session).data, status=status.HTTP_201_CREATED)
+    
+    if session.deck_id:
+        first_dc = (
+            DeckCard.objects.filter(deck_id=session.deck_id)
+            .select_related("card")
+            .order_by("order", "id")
+            .first()
+        )
+        if first_dc:
+            session.current_card = first_dc.card
+            session.save(update_fields=["current_card", "modified"])
 
+    return Response(SessionCreateSerializer(session).data, status=status.HTTP_201_CREATED)
 
 @api_view(["POST"])
 @permission_classes([IsAdminUserToken])
@@ -59,21 +71,32 @@ def join_group(request):
 @api_view(["POST"])
 @permission_classes([IsParticipantToken])
 def create_vote(request):
+    """
+    Participante vota usando session_id y group_id desde el token.
+    Body: { "card": <id>, "value": -1|0|1, "comment": "" }
+    """
     serializer = VoteCreateSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
-    session = serializer.validated_data["session"]
-    group = serializer.validated_data["group"]
+    # Token claims (lo que ya te devuelve participant_join)
+    auth = getattr(request, "auth", None) or {}
+    session_id = auth.get("session_id")
+    group_id = auth.get("group_id")
+
+    if not session_id or not group_id:
+        return Response({"detail": "participant token required"}, status=status.HTTP_403_FORBIDDEN)
+
     card = serializer.validated_data["card"]
     value = serializer.validated_data["value"]
     comment = serializer.validated_data.get("comment", "")
 
     vote, _created = Vote.objects.update_or_create(
-        session=session,
-        group=group,
+        session_id=session_id,
+        group_id=group_id,
         card=card,
         defaults={"value": value, "comment": comment},
     )
+
     return Response(VoteCreateSerializer(vote).data, status=status.HTTP_200_OK)
 
 

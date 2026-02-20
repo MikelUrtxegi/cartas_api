@@ -8,7 +8,7 @@ class SessionCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Session
-        fields = ["id", "company", "language", "status", "created_at", "updated_at"]
+        fields = ["id", "company", "deck", "language", "status", "created_at", "updated_at"]
         read_only_fields = ["id", "status", "created_at", "updated_at"]
 
 
@@ -32,8 +32,13 @@ class VoteCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Vote
-        fields = ["id", "session", "group", "card", "value", "comment", "created_at", "updated_at"]
+        fields = ["id", "card", "value", "comment", "created_at", "updated_at"]
         read_only_fields = ["id", "created_at", "updated_at"]
+
+    def validate_value(self, v):
+        if v not in (-1, 0, 1):
+            raise serializers.ValidationError("value must be -1, 0 or 1")
+        return v
 
 
 class CanvasUpsertSerializer(serializers.ModelSerializer):
