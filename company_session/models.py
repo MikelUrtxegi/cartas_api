@@ -6,6 +6,7 @@ from django.db import models
 from model_utils.models import TimeStampedModel
 
 from cards.models import Card
+from decks.models import Deck
 from companies.models import Company
 
 
@@ -27,8 +28,37 @@ class Session(TimeStampedModel):
         related_name="sessions_created",
     )
 
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="sessions_created",
+    )
+
     language = models.CharField(max_length=10, default="en")
-    status = models.CharField(max_length=16, choices=Status.choices, default=Status.DRAFT)
+
+    status = models.CharField(
+        max_length=16,
+        choices=Status.choices,
+        default=Status.DRAFT,
+    )
+
+    deck = models.ForeignKey(
+        Deck,
+        on_delete=models.PROTECT,
+        related_name="sessions",
+        null=True,
+        blank=True,
+    )
+
+    current_card = models.ForeignKey(
+        Card,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="sessions_current",
+    )
+
+
 
     started_at = models.DateTimeField(null=True, blank=True)
     finished_at = models.DateTimeField(null=True, blank=True)
@@ -61,11 +91,16 @@ class SessionCard(TimeStampedModel):
 
 
 class Vote(TimeStampedModel):
+    class VoteValue(models.IntegerChoices):
+        NO = -1, "NO"
+        ABSTAIN = 0, "NO_RESPONDE"
+        YES = 1, "SI"
+
     session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name="votes")
     group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="votes")
     card = models.ForeignKey(Card, on_delete=models.PROTECT, related_name="votes")
 
-    value = models.IntegerField()
+    value = models.SmallIntegerField(choices=VoteValue.choices)
     comment = models.TextField(blank=True, default="")
 
     class Meta:
@@ -75,7 +110,6 @@ class Vote(TimeStampedModel):
 
     def __str__(self) -> str:
         return f"Vote s={self.session_id} g={self.group_id} c={self.card_id} v={self.value}"
-
 
 class Canvas(TimeStampedModel):
     session = models.OneToOneField(Session, on_delete=models.CASCADE, related_name="canvas")
