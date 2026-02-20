@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import cards_dashboard
+from . import views
 
 urlpatterns = [
-    path("cards/", cards_dashboard, name="dashboard_cards"),
+    path("", views.create_card, name="dashboard_cards_create"),  # POST /api/dashboard/cards/
 ]
