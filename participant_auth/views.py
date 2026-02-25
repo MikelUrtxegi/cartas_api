@@ -12,6 +12,7 @@ from rest_framework_simplejwt.tokens import AccessToken
 from company_session.models import Group
 from .models import Participant
 from .serializers import ParticipantJoinSerializer
+from datetime import timedelta
 
 
 @api_view(["POST"])
@@ -43,8 +44,8 @@ def participant_join(request):
     token["participant_id"] = participant.id
     token["session_id"] = group.session_id
     token["group_id"] = group.id
-    token["exp"] = timezone.now() + settings.SIMPLE_JWT["ACCESS_TOKEN_LIFETIME"]
-
+    token.set_exp(lifetime=timedelta(hours=8))  # Token válido por 8 horas  
+    
     return Response(
         {
             "access": str(token),

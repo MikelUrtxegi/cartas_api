@@ -7,4 +7,5 @@ urlpatterns = [
     path("groups/join/", views.join_group, name="join_group"),
     path("votes/", views.create_vote, name="create_vote"),
     path("sessions/<int:session_id>/canvas/", views.canvas_view, name="canvas"),
+    path("sessions/<int:session_id>/current-card/", views.current_card, name="current_card",),
 ]

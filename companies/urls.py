@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import companies_dashboard
+from . import views
 
 urlpatterns = [
-    path("companies/", companies_dashboard, name="dashboard_companies"),
+    path("", views.list_companies, name="dashboard_companies_list"),   # GET
+    path("create/", views.create_company, name="dashboard_companies_create"),  # POST
 ]

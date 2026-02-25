@@ -21,11 +21,10 @@ class Session(TimeStampedModel):
         ACTIVE = "active", "Active"
         FINISHED = "finished", "Finished"
 
-    company = models.ForeignKey(Company, on_delete=models.PROTECT, related_name="sessions")
-    created_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
+    company = models.ForeignKey(
+        Company,
         on_delete=models.PROTECT,
-        related_name="sessions_created",
+        related_name="sessions",
     )
 
     created_by = models.ForeignKey(

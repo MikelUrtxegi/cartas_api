@@ -7,6 +7,7 @@ from rest_framework import status
 from .permissions import IsAdminUserToken, IsParticipantToken
 from .models import Session, Group, Canvas, Vote
 from decks.models import DeckCard
+from cards.models import Card
 
 
 
@@ -26,7 +27,7 @@ def create_session(request):
     serializer = SessionCreateSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
     session = serializer.save(created_by=request.user)
-    
+
     if session.deck_id:
         first_dc = (
             DeckCard.objects.filter(deck_id=session.deck_id)
@@ -117,3 +118,27 @@ def canvas_view(request, session_id: int):
         defaults={"data": serializer.validated_data["data"], "updated_by": request.user},
     )
     return Response({"session": session_id, "data": canvas.data}, status=status.HTTP_200_OK)
+
+@api_view(["GET"])
+@permission_classes([IsParticipantToken])
+def current_card(request, session_id: int):
+    try:
+        s = Session.objects.select_related("current_card").get(id=session_id)
+    except Session.DoesNotExist:
+        return Response({"detail": "Not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    card = s.current_card
+    if not card:
+        return Response({"session": s.id, "card": None}, status=status.HTTP_200_OK)
+
+    return Response(
+        {
+            "session": s.id,
+            "card": {
+                "id": card.id,
+                "title": card.title,
+                "description": card.description,
+            },
+        },
+        status=status.HTTP_200_OK,
+    )
