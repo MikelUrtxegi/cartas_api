@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+from datetime import timedelta
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,12 +28,18 @@ SECRET_KEY = 'django-insecure-v^mpd8s539yknjj59-4@&b@ykt!q5@132s!1+hqec5##t#!!l#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [host.strip() for host in os.getenv("DJANGO_ALLOWED_HOSTS", "localhost").split(",")]
+
+DEFAULT_ADMIN_PASSWORD = os.getenv("DEFAULT_ADMIN_PASSWORD", "ChangeMe123!")
+
 
 
 # Application definition
 
+
+
 INSTALLED_APPS = [
+    # Django core
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -38,12 +47,32 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    "api_auth",
+    # Third party
+    "rest_framework",
+    "corsheaders",
+    "drf_yasg",
+
+    # Internal auth
+    "auth_template",
+    "jwt_auth",
+
+    # Infra
     "health",
 
+    # Core domain
+    "companies",
+    "cards",
+    "decks",
+    "company_session",
+    "participant_auth",
+    "dashboard",
 ]
 
+
+
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -78,9 +107,13 @@ WSGI_APPLICATION = 'cartas.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("DATABASE_NAME", "cartas_db"),
+        "USER": os.getenv("DATABASE_USER", "postgres"),
+        "PASSWORD": os.getenv("DATABASE_PASSWORD", "postgres"),
+        "HOST": os.getenv("DATABASE_HOST", "postgres"),
+        "PORT": os.getenv("DATABASE_PORT", "5432"),
     }
 }
 
@@ -125,3 +158,22 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "participant_auth.authentication.ParticipantJWTAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ),
+}
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
+AUTH_USER_MODEL = "auth_template.CustomUser"
+
+CORS_ALLOW_ALL_ORIGINS = True
+
